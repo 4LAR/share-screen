@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' http://localhost:3000; connect-src 'self' http://localhost:3000;">
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+    We are using Node.js <span id="node-version"></span>,
+    Chromium <span id="chrome-version"></span>,
+    and Electron <span id="electron-version"></span>.
+
+    <!-- You can also require other files to run in this process -->
+    <button id="startButton" class="button">Start</button>
+    <button id="stopButton" class="button">Stop</button>
+    <button id="pauseButton" class="button">Pause</button>
+    <video width="320" height="240" autoplay></video>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="./static/js/main.js"></script>
+  </body>
+</html>

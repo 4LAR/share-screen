@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Stream</title>
+    <style>
+      #remoteVideo {
+        width: 100%;
+        height: auto;
+      }
+      #fullscreenBtn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <video id="remoteVideo" autoplay></video>
+    <button id="fullscreenBtn">Go Fullscreen</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      const remoteVideo = document.getElementById("remoteVideo");
+      const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+      // Функция для перехода в полноэкранный режим
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          remoteVideo.requestFullscreen()
+            .catch(err => {
+              console.log("Error attempting to enable fullscreen mode:", err);
+            });
+        } else {
+          document.exitFullscreen();
+        }
+      }
+
+      // Обработчик нажатия на кнопку
+      fullscreenBtn.addEventListener("click", toggleFullscreen);
+
+      // Создаем RTCPeerConnection без STUN-сервера
+      const peer = new RTCPeerConnection({
+        bundlePolicy: 'max-bundle',  // Оптимизация соединений
+        rtcpMuxPolicy: 'require',    // Используем multiplexing
+        iceCandidatePoolSize: 0,     // Минимизация ICE кандидатов
+      });
+
+      // Обрабатываем входящий видеопоток
+      peer.ontrack = event => {
+        remoteVideo.srcObject = event.streams[0];
+      };
+
+      // Обрабатываем ICE-кандидатов (не используем в локальной сети)
+      peer.onicecandidate = event => {
+        if (event.candidate) {
+          socket.emit("candidate", event.candidate);
+        }
+      };
+
+      // При получении предложения (offer) отвечаем
+      socket.on("offer", async data => {
+        await peer.setRemoteDescription(new RTCSessionDescription(data.sdp));
+        const answer = await peer.createAnswer();
+        await peer.setLocalDescription(answer);
+        socket.emit("answer", { sdp: peer.localDescription });
+      });
+
+      // Устанавливаем ответ (answer)
+      socket.on("answer", async data => {
+        await peer.setRemoteDescription(new RTCSessionDescription(data.sdp));
+      });
+
+      // Принимаем ICE-кандидатов
+      socket.on("candidate", async data => {
+        await peer.addIceCandidate(new RTCIceCandidate(data));
+      });
+
+    </script>
+  </body>
+</html>

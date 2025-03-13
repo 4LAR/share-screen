@@ -1,0 +1,62 @@
+{
+  "name": "Share-Screen",
+  "version": "0.1.0",
+  "description": "Share your screen",
+  "main": "main.js",
+  "author": "100LAR STUDIO <nikitstolarov@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^35.0.1",
+    "electron-builder": "^23.3.1",
+    "electron-reloader": "^1.2.3"
+  },
+  "dependencies": {
+    "auto-launch": "^5.0.6",
+    "cors": "^2.8.5",
+    "electron-is-packaged": "^1.0.2",
+    "electron-store": "^8.1.0",
+    "electron-window-state": "^5.0.3",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "scripts": {
+    "start": "electron --no-sandbox .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "asar": true,
+    "files": [
+      "static/",
+      "index.html",
+      "logo.svg",
+      "logo.png",
+      "logo.ico",
+      "settings.js",
+      "package.json",
+      "main.js"
+    ],
+    "appId": "share-screen",
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "logo.ico"
+    },
+    "linux": {
+      "target": [
+        "snap",
+        "deb"
+      ],
+      "category": "Network",
+      "icon": "logo.svg"
+    },
+    "portable": {
+      "unicode": false,
+      "artifactName": "${productName}-${version}-PORTABLE.${ext}"
+    },
+    "nsis": {
+      "artifactName": "${productName}-${version}-INSTALLER.${ext}"
+    }
+  }
+}
